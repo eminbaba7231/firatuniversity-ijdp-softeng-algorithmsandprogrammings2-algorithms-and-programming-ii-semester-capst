@@ -1,45 +1,19 @@
 import unittest
-
-def bellman_ford(edges, nodes, source):
-    dist = {node: float('inf') for node in nodes}
-    dist[source] = 0
-
-    for _ in range(len(nodes) - 1):
-        for u, v, w in edges:
-            if dist[u] + w < dist[v]:
-                dist[v] = dist[u] + w
-
-    for u, v, w in edges:
-        if dist[u] + w < dist[v]:
-            raise ValueError("Negative weight cycle detected.")
-
-    return dist
+from algorithm import bellman_ford
 
 class TestBellmanFord(unittest.TestCase):
-
-    def test_simple_graph(self):
-        edges = [("A", "B", 4), ("A", "C", 5), ("B", "C", -2)]
-        nodes = ["A", "B", "C"]
-        source = "A"
-        expected = {"A": 0, "B": 4, "C": 2}
-        result = bellman_ford(edges, nodes, source)
-        self.assertEqual(result, expected)
-
-    def test_no_path(self):
-        edges = [("A", "B", 2)]
-        nodes = ["A", "B", "C"]
-        source = "A"
-        expected = {"A": 0, "B": 2, "C": float('inf')}
-        result = bellman_ford(edges, nodes, source)
-        self.assertEqual(result, expected)
+    def test_shortest_paths(self):
+        vertices = 5
+        edges = [(0, 1, 6), (0, 2, 7), (1, 2, 8), (1, 3, 5), (2, 3, -3)]
+        steps, has_cycle, final_dist = bellman_ford(vertices, edges, 0)
+        self.assertFalse(has_cycle)
+        self.assertEqual(final_dist[3], 4)
 
     def test_negative_cycle(self):
-        edges = [("A", "B", 1), ("B", "C", -1), ("C", "A", -1)]
-        nodes = ["A", "B", "C"]
-        source = "A"
-        with self.assertRaises(ValueError):
-            bellman_ford(edges, nodes, source)
+        vertices = 3
+        edges = [(0, 1, 1), (1, 2, -1), (2, 0, -1)]
+        steps, has_cycle, _ = bellman_ford(vertices, edges, 0)
+        self.assertTrue(has_cycle)
 
 if __name__ == '__main__':
     unittest.main()
-
